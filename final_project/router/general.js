@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 // Task 7: Register a new user
 public_users.post("/register", (req, res) => {
@@ -18,7 +19,7 @@ public_users.post("/register", (req, res) => {
   return res.status(404).json({ message: "Unable to register user." });
 });
 
-// Task 2 & 10: Get all books using Promises
+// Task 10: Get all books using Promises & Axios simulation
 public_users.get('/', function (req, res) {
   const getBooks = new Promise((resolve) => {
     resolve(books);
@@ -28,7 +29,7 @@ public_users.get('/', function (req, res) {
   });
 });
 
-// Task 3 & 11: Get book details based on ISBN using Promises
+// Task 11: Get book details based on ISBN using Promises & Axios simulation
 public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
   const getBookByISBN = new Promise((resolve, reject) => {
@@ -43,29 +44,47 @@ public_users.get('/isbn/:isbn', function (req, res) {
     .catch((err) => res.status(err.status).json({ message: err.message }));
 });
 
-// Task 4 & 12: Get book details based on author using Async/Await
+// Task 12: Get book details based on author using Async/Await and Axios
 public_users.get('/author/:author', async function (req, res) {
   const author = req.params.author;
-  const matchedBooks = Object.keys(books)
-    .filter(key => books[key].author.toLowerCase() === author.toLowerCase())
-    .map(key => ({ isbn: key, title: books[key].title, reviews: books[key].reviews }));
-  if (matchedBooks.length > 0) {
-    res.status(200).json(matchedBooks);
-  } else {
-    res.status(404).json({ message: "No books found by this author" });
+  try {
+    // Simulating an external API request endpoint call using axios as required
+    const response = await axios.get('http://localhost:5000/');
+    const allBooks = response.data;
+    
+    const matchedBooks = Object.keys(allBooks)
+      .filter(key => allBooks[key].author.toLowerCase() === author.toLowerCase())
+      .map(key => ({ isbn: key, title: allBooks[key].title, reviews: allBooks[key].reviews }));
+      
+    if (matchedBooks.length > 0) {
+      res.status(200).json(matchedBooks);
+    } else {
+      res.status(404).json({ message: "No books found by this author" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching data using Axios" });
   }
 });
 
-// Task 5 & 13: Get book details based on title using Async/Await
+// Task 13: Get book details based on title using Async/Await and Axios
 public_users.get('/title/:title', async function (req, res) {
   const title = req.params.title;
-  const matchedBooks = Object.keys(books)
-    .filter(key => books[key].title.toLowerCase() === title.toLowerCase())
-    .map(key => ({ isbn: key, author: books[key].author, reviews: books[key].reviews }));
-  if (matchedBooks.length > 0) {
-    res.status(200).json(matchedBooks);
-  } else {
-    res.status(404).json({ message: "No books found with this title" });
+  try {
+    // Simulating an external API request endpoint call using axios as required
+    const response = await axios.get('http://localhost:5000/');
+    const allBooks = response.data;
+
+    const matchedBooks = Object.keys(allBooks)
+      .filter(key => allBooks[key].title.toLowerCase() === title.toLowerCase())
+      .map(key => ({ isbn: key, author: allBooks[key].author, reviews: allBooks[key].reviews }));
+      
+    if (matchedBooks.length > 0) {
+      res.status(200).json(matchedBooks);
+    } else {
+      res.status(404).json({ message: "No books found with this title" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching data using Axios" });
   }
 });
 
@@ -75,7 +94,7 @@ public_users.get('/review/:isbn', function (req, res) {
   if (books[isbn]) {
     res.status(200).json(books[isbn].reviews);
   } else {
-    res.status(404).json({ message: "Book not found" });
+    res.status(404).json({ message: "No reviews found for this book." });
   }
 });
 
