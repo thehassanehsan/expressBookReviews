@@ -5,28 +5,28 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 const axios = require('axios');
 
-// Endpoint to handle new user registration
+// Route handler for registering new customers onto the platform
 public_users.post("/register", (req, res) => {
   const uname = req.body.username;
   const pword = req.body.password;
 
-  // Ensure both input fields are provided
+  // Validation step: Reject request if essential payload elements are missing
   if (!uname || !pword) {
     return res.status(404).json({ message: "Unable to register user." });
   }
 
-  // Check if user already exists in the local collection
+  // Conflict verification step: Ensure unique username constraints are maintained
   const exists = users.some((u) => u.username === uname);
   if (exists) {
     return res.status(404).json({ message: "User already exists!" });
   }
 
-  // Save the new user details
+  // Operation step: Commit credential data into storage array
   users.push({ username: uname, password: pword });
   return res.status(200).json({ message: "Customer successfully registered. Now you can login" });
 });
 
-// Fetch all available books asynchronously using a Promise wrapper
+// Asynchronous root route handler designed to stream the complete library map via Promises
 public_users.get('/', function (req, res) {
   new Promise((resOk) => {
     resOk(books);
@@ -35,7 +35,7 @@ public_users.get('/', function (req, res) {
   });
 });
 
-// Fetch a single book record by its unique ISBN matching parameter
+// Promise-driven endpoint to fetch a explicit item layout mapped to its ISBN key
 public_users.get('/isbn/:isbn', function (req, res) {
   const targetIsbn = req.params.isbn;
   
@@ -50,14 +50,14 @@ public_users.get('/isbn/:isbn', function (req, res) {
   .catch((error) => res.status(error.status).json({ message: error.message }));
 });
 
-// Search and filter books by author name using async/await syntax patterns
+// Async route handler utilizing iterative indexing loops to filter items matching the target Author string
 public_users.get('/author/:author', async function (req, res) {
   const queryAuth = req.params.author.toLowerCase();
   try {
     const keys = Object.keys(books);
     const out = [];
     
-    // Loop through the data to look for matching author names
+    // Sequential validation loop to extract nested object profiles safely
     for (let i = 0; i < keys.length; i++) {
       const b = books[keys[i]];
       if (b.author.toLowerCase() === queryAuth) {
@@ -69,6 +69,7 @@ public_users.get('/author/:author', async function (req, res) {
       }
     }
 
+    // Response branch routing based on array payload resolution status
     if (out.length > 0) {
       return res.status(200).json(out);
     }
@@ -78,14 +79,14 @@ public_users.get('/author/:author', async function (req, res) {
   }
 });
 
-// Search and filter books by title keywords using async/await syntax patterns
+// Async route handler utilizing iterative indexing loops to filter items matching the target Title string
 public_users.get('/title/:title', async function (req, res) {
   const queryTitle = req.params.title.toLowerCase();
   try {
     const keys = Object.keys(books);
     const out = [];
 
-    // Iterate across the keys database object manually
+    // Memory-safe manual traversal pattern deployed across the local record footprint
     for (let i = 0; i < keys.length; i++) {
       const b = books[keys[i]];
       if (b.title.toLowerCase() === queryTitle) {
@@ -97,6 +98,7 @@ public_users.get('/title/:title', async function (req, res) {
       }
     }
 
+    // Response execution matching programmatic filtering metrics
     if (out.length > 0) {
       return res.status(200).json(out);
     }
@@ -106,7 +108,7 @@ public_users.get('/title/:title', async function (req, res) {
   }
 });
 
-// Retrieve reviews for a book based on the provided ISBN parameter
+// Sync handler executing extraction routing parameters to check for user reviews data trees
 public_users.get('/review/:isbn', function (req, res) {
   const targetIsbn = req.params.isbn;
   const match = books[targetIsbn];
